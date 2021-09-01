@@ -4,6 +4,25 @@
 
 [1]: https://pypi.org/project/dialogflow/#history
 
+## [2.8.0](https://www.github.com/googleapis/python-dialogflow/compare/v2.7.1...v2.8.0) (2021-09-01)
+
+
+### Features
+
+* add language code to streaming recognition result ([ad896f7](https://www.github.com/googleapis/python-dialogflow/commit/ad896f7401feb3f38b57612cb1bb865f1d3fc371))
+* add time zone and security settings to conversation profile ([ad896f7](https://www.github.com/googleapis/python-dialogflow/commit/ad896f7401feb3f38b57612cb1bb865f1d3fc371))
+* expose `Locations` service to get/list avaliable locations of Dialogflow products ([#364](https://www.github.com/googleapis/python-dialogflow/issues/364)) ([ad896f7](https://www.github.com/googleapis/python-dialogflow/commit/ad896f7401feb3f38b57612cb1bb865f1d3fc371))
+
+
+### Documentation
+
+* fix validation result docs ([ad896f7](https://www.github.com/googleapis/python-dialogflow/commit/ad896f7401feb3f38b57612cb1bb865f1d3fc371))
+* **samples:** add update intent code sample ([#357](https://www.github.com/googleapis/python-dialogflow/issues/357)) ([fab916f](https://www.github.com/googleapis/python-dialogflow/commit/fab916f1f239b7425371abb224b65965913c0481))
+* update agent docs ([ad896f7](https://www.github.com/googleapis/python-dialogflow/commit/ad896f7401feb3f38b57612cb1bb865f1d3fc371))
+* update entity type docs ([ad896f7](https://www.github.com/googleapis/python-dialogflow/commit/ad896f7401feb3f38b57612cb1bb865f1d3fc371))
+* update environment docs ([ad896f7](https://www.github.com/googleapis/python-dialogflow/commit/ad896f7401feb3f38b57612cb1bb865f1d3fc371))
+* update intent docs ([ad896f7](https://www.github.com/googleapis/python-dialogflow/commit/ad896f7401feb3f38b57612cb1bb865f1d3fc371))
+
 ### [2.7.1](https://www.github.com/googleapis/python-dialogflow/compare/v2.7.0...v2.7.1) (2021-07-26)
 
 

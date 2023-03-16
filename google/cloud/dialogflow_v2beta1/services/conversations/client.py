@@ -16,34 +16,49 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
+from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+from google.cloud.dialogflow_v2beta1 import gapic_version as package_version
 
 try:
     OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
-from google.cloud.dialogflow_v2beta1.services.conversations import pagers
-from google.cloud.dialogflow_v2beta1.types import conversation
-from google.cloud.dialogflow_v2beta1.types import conversation as gcd_conversation
-from google.cloud.dialogflow_v2beta1.types import participant
 from google.cloud.location import locations_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.protobuf import timestamp_pb2  # type: ignore
-from .transports.base import ConversationsTransport, DEFAULT_CLIENT_INFO
+
+from google.cloud.dialogflow_v2beta1.services.conversations import pagers
+from google.cloud.dialogflow_v2beta1.types import conversation as gcd_conversation
+from google.cloud.dialogflow_v2beta1.types import conversation
+from google.cloud.dialogflow_v2beta1.types import participant
+
+from .transports.base import DEFAULT_CLIENT_INFO, ConversationsTransport
 from .transports.grpc import ConversationsGrpcTransport
 from .transports.grpc_asyncio import ConversationsGrpcAsyncIOTransport
+from .transports.rest import ConversationsRestTransport
 
 
 class ConversationsClientMeta(type):
@@ -57,10 +72,11 @@ class ConversationsClientMeta(type):
     _transport_registry = OrderedDict()  # type: Dict[str, Type[ConversationsTransport]]
     _transport_registry["grpc"] = ConversationsGrpcTransport
     _transport_registry["grpc_asyncio"] = ConversationsGrpcAsyncIOTransport
+    _transport_registry["rest"] = ConversationsRestTransport
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[ConversationsTransport]:
         """Returns an appropriate transport class.
 
@@ -342,7 +358,7 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -397,8 +413,8 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, ConversationsTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, ConversationsTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the conversations client.
@@ -412,7 +428,7 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
             transport (Union[str, ConversationsTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -442,6 +458,7 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -494,12 +511,14 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def create_conversation(
         self,
-        request: Union[gcd_conversation.CreateConversationRequest, dict] = None,
+        request: Optional[
+            Union[gcd_conversation.CreateConversationRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        conversation: gcd_conversation.Conversation = None,
+        parent: Optional[str] = None,
+        conversation: Optional[gcd_conversation.Conversation] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gcd_conversation.Conversation:
         r"""Creates a new conversation. Conversations are auto-completed
@@ -634,11 +653,11 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def list_conversations(
         self,
-        request: Union[conversation.ListConversationsRequest, dict] = None,
+        request: Optional[Union[conversation.ListConversationsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListConversationsPager:
         r"""Returns the list of all conversations in the
@@ -692,7 +711,7 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
         Returns:
             google.cloud.dialogflow_v2beta1.services.conversations.pagers.ListConversationsPager:
                 The response message for
-                [Conversations.ListConversations][google.cloud.dialogflow.v2beta1.Conversations.ListConversations].
+                   [Conversations.ListConversations][google.cloud.dialogflow.v2beta1.Conversations.ListConversations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -751,11 +770,11 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def get_conversation(
         self,
-        request: Union[conversation.GetConversationRequest, dict] = None,
+        request: Optional[Union[conversation.GetConversationRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> conversation.Conversation:
         r"""Retrieves the specific conversation.
@@ -858,11 +877,11 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def complete_conversation(
         self,
-        request: Union[conversation.CompleteConversationRequest, dict] = None,
+        request: Optional[Union[conversation.CompleteConversationRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> conversation.Conversation:
         r"""Completes the specified conversation. Finished
@@ -968,11 +987,11 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def batch_create_messages(
         self,
-        request: Union[conversation.BatchCreateMessagesRequest, dict] = None,
+        request: Optional[Union[conversation.BatchCreateMessagesRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> conversation.BatchCreateMessagesResponse:
         r"""Batch ingests messages to conversation. Customers can
@@ -1078,11 +1097,11 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def list_messages(
         self,
-        request: Union[conversation.ListMessagesRequest, dict] = None,
+        request: Optional[Union[conversation.ListMessagesRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMessagesPager:
         r"""Lists messages that belong to a given conversation. ``messages``
@@ -1139,7 +1158,7 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
         Returns:
             google.cloud.dialogflow_v2beta1.services.conversations.pagers.ListMessagesPager:
                 The response message for
-                [Conversations.ListMessages][google.cloud.dialogflow.v2beta1.Conversations.ListMessages].
+                   [Conversations.ListMessages][google.cloud.dialogflow.v2beta1.Conversations.ListMessages].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1198,11 +1217,13 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def suggest_conversation_summary(
         self,
-        request: Union[gcd_conversation.SuggestConversationSummaryRequest, dict] = None,
+        request: Optional[
+            Union[gcd_conversation.SuggestConversationSummaryRequest, dict]
+        ] = None,
         *,
-        conversation: str = None,
+        conversation: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gcd_conversation.SuggestConversationSummaryResponse:
         r"""Suggest summary for a conversation based on specific
@@ -1256,7 +1277,7 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
         Returns:
             google.cloud.dialogflow_v2beta1.types.SuggestConversationSummaryResponse:
                 The response message for
-                [Conversations.SuggestConversationSummary][google.cloud.dialogflow.v2beta1.Conversations.SuggestConversationSummary].
+                   [Conversations.SuggestConversationSummary][google.cloud.dialogflow.v2beta1.Conversations.SuggestConversationSummary].
 
         """
         # Create or coerce a protobuf request object.
@@ -1305,7 +1326,7 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
         # Done; return the response.
         return response
 
-    def __enter__(self):
+    def __enter__(self) -> "ConversationsClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -1320,10 +1341,10 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1374,10 +1395,10 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1428,10 +1449,10 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1482,10 +1503,10 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1536,10 +1557,10 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -1589,14 +1610,9 @@ class ConversationsClient(metaclass=ConversationsClientMeta):
         return response
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-dialogflow",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("ConversationsClient",)

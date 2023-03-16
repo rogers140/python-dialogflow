@@ -13,11 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
+from google.protobuf import field_mask_pb2  # type: ignore
 import proto  # type: ignore
 
 from google.cloud.dialogflow_v2.types import entity_type
-from google.protobuf import field_mask_pb2  # type: ignore
-
 
 __protobuf__ = proto.module(
     package="google.cloud.dialogflow.v2",
@@ -62,27 +65,49 @@ class SessionEntityType(proto.Message):
             Required. Indicates whether the additional
             data should override or supplement the custom
             entity type definition.
-        entities (Sequence[google.cloud.dialogflow_v2.types.EntityType.Entity]):
+        entities (MutableSequence[google.cloud.dialogflow_v2.types.EntityType.Entity]):
             Required. The collection of entities
             associated with this session entity type.
     """
 
     class EntityOverrideMode(proto.Enum):
-        r"""The types of modifications for a session entity type."""
+        r"""The types of modifications for a session entity type.
+
+        Values:
+            ENTITY_OVERRIDE_MODE_UNSPECIFIED (0):
+                Not specified. This value should be never
+                used.
+            ENTITY_OVERRIDE_MODE_OVERRIDE (1):
+                The collection of session entities overrides
+                the collection of entities in the corresponding
+                custom entity type.
+            ENTITY_OVERRIDE_MODE_SUPPLEMENT (2):
+                The collection of session entities extends the collection of
+                entities in the corresponding custom entity type.
+
+                Note: Even in this override mode calls to
+                ``ListSessionEntityTypes``, ``GetSessionEntityType``,
+                ``CreateSessionEntityType`` and ``UpdateSessionEntityType``
+                only return the additional entities added in this session
+                entity type. If you want to get the supplemented list,
+                please call
+                [EntityTypes.GetEntityType][google.cloud.dialogflow.v2.EntityTypes.GetEntityType]
+                on the custom entity type and merge.
+        """
         ENTITY_OVERRIDE_MODE_UNSPECIFIED = 0
         ENTITY_OVERRIDE_MODE_OVERRIDE = 1
         ENTITY_OVERRIDE_MODE_SUPPLEMENT = 2
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    entity_override_mode = proto.Field(
+    entity_override_mode: EntityOverrideMode = proto.Field(
         proto.ENUM,
         number=2,
         enum=EntityOverrideMode,
     )
-    entities = proto.RepeatedField(
+    entities: MutableSequence[entity_type.EntityType.Entity] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
         message=entity_type.EntityType.Entity,
@@ -111,15 +136,15 @@ class ListSessionEntityTypesRequest(proto.Message):
             list request.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -130,7 +155,7 @@ class ListSessionEntityTypesResponse(proto.Message):
     [SessionEntityTypes.ListSessionEntityTypes][google.cloud.dialogflow.v2.SessionEntityTypes.ListSessionEntityTypes].
 
     Attributes:
-        session_entity_types (Sequence[google.cloud.dialogflow_v2.types.SessionEntityType]):
+        session_entity_types (MutableSequence[google.cloud.dialogflow_v2.types.SessionEntityType]):
             The list of session entity types. There will be a maximum
             number of items returned based on the page_size field in the
             request.
@@ -144,12 +169,12 @@ class ListSessionEntityTypesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    session_entity_types = proto.RepeatedField(
+    session_entity_types: MutableSequence["SessionEntityType"] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message="SessionEntityType",
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -170,7 +195,7 @@ class GetSessionEntityTypeRequest(proto.Message):
             assume default '-' user.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -193,11 +218,11 @@ class CreateSessionEntityTypeRequest(proto.Message):
             Required. The session entity type to create.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    session_entity_type = proto.Field(
+    session_entity_type: "SessionEntityType" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="SessionEntityType",
@@ -216,12 +241,12 @@ class UpdateSessionEntityTypeRequest(proto.Message):
             get updated.
     """
 
-    session_entity_type = proto.Field(
+    session_entity_type: "SessionEntityType" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="SessionEntityType",
     )
-    update_mask = proto.Field(
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=2,
         message=field_mask_pb2.FieldMask,
@@ -243,7 +268,7 @@ class DeleteSessionEntityTypeRequest(proto.Message):
             assume default '-' user.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )

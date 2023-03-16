@@ -16,34 +16,49 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
+from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+from google.cloud.dialogflow_v2 import gapic_version as package_version
 
 try:
     OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
-from google.cloud.dialogflow_v2.services.versions import pagers
-from google.cloud.dialogflow_v2.types import version
-from google.cloud.dialogflow_v2.types import version as gcd_version
 from google.cloud.location import locations_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
-from .transports.base import VersionsTransport, DEFAULT_CLIENT_INFO
+
+from google.cloud.dialogflow_v2.services.versions import pagers
+from google.cloud.dialogflow_v2.types import version
+from google.cloud.dialogflow_v2.types import version as gcd_version
+
+from .transports.base import DEFAULT_CLIENT_INFO, VersionsTransport
 from .transports.grpc import VersionsGrpcTransport
 from .transports.grpc_asyncio import VersionsGrpcAsyncIOTransport
+from .transports.rest import VersionsRestTransport
 
 
 class VersionsClientMeta(type):
@@ -57,10 +72,11 @@ class VersionsClientMeta(type):
     _transport_registry = OrderedDict()  # type: Dict[str, Type[VersionsTransport]]
     _transport_registry["grpc"] = VersionsGrpcTransport
     _transport_registry["grpc_asyncio"] = VersionsGrpcAsyncIOTransport
+    _transport_registry["rest"] = VersionsRestTransport
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[VersionsTransport]:
         """Returns an appropriate transport class.
 
@@ -277,7 +293,7 @@ class VersionsClient(metaclass=VersionsClientMeta):
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -332,8 +348,8 @@ class VersionsClient(metaclass=VersionsClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, VersionsTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, VersionsTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the versions client.
@@ -347,7 +363,7 @@ class VersionsClient(metaclass=VersionsClientMeta):
             transport (Union[str, VersionsTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -377,6 +393,7 @@ class VersionsClient(metaclass=VersionsClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -429,11 +446,11 @@ class VersionsClient(metaclass=VersionsClientMeta):
 
     def list_versions(
         self,
-        request: Union[version.ListVersionsRequest, dict] = None,
+        request: Optional[Union[version.ListVersionsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListVersionsPager:
         r"""Returns the list of all versions of the specified
@@ -489,7 +506,7 @@ class VersionsClient(metaclass=VersionsClientMeta):
         Returns:
             google.cloud.dialogflow_v2.services.versions.pagers.ListVersionsPager:
                 The response message for
-                [Versions.ListVersions][google.cloud.dialogflow.v2.Versions.ListVersions].
+                   [Versions.ListVersions][google.cloud.dialogflow.v2.Versions.ListVersions].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -548,11 +565,11 @@ class VersionsClient(metaclass=VersionsClientMeta):
 
     def get_version(
         self,
-        request: Union[version.GetVersionRequest, dict] = None,
+        request: Optional[Union[version.GetVersionRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> version.Version:
         r"""Retrieves the specified agent version.
@@ -671,12 +688,12 @@ class VersionsClient(metaclass=VersionsClientMeta):
 
     def create_version(
         self,
-        request: Union[gcd_version.CreateVersionRequest, dict] = None,
+        request: Optional[Union[gcd_version.CreateVersionRequest, dict]] = None,
         *,
-        parent: str = None,
-        version: gcd_version.Version = None,
+        parent: Optional[str] = None,
+        version: Optional[gcd_version.Version] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gcd_version.Version:
         r"""Creates an agent version.
@@ -805,12 +822,12 @@ class VersionsClient(metaclass=VersionsClientMeta):
 
     def update_version(
         self,
-        request: Union[gcd_version.UpdateVersionRequest, dict] = None,
+        request: Optional[Union[gcd_version.UpdateVersionRequest, dict]] = None,
         *,
-        version: gcd_version.Version = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        version: Optional[gcd_version.Version] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gcd_version.Version:
         r"""Updates the specified agent version.
@@ -943,11 +960,11 @@ class VersionsClient(metaclass=VersionsClientMeta):
 
     def delete_version(
         self,
-        request: Union[version.DeleteVersionRequest, dict] = None,
+        request: Optional[Union[version.DeleteVersionRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Delete the specified agent version.
@@ -1034,7 +1051,7 @@ class VersionsClient(metaclass=VersionsClientMeta):
             metadata=metadata,
         )
 
-    def __enter__(self):
+    def __enter__(self) -> "VersionsClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -1049,10 +1066,10 @@ class VersionsClient(metaclass=VersionsClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1103,10 +1120,10 @@ class VersionsClient(metaclass=VersionsClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1157,10 +1174,10 @@ class VersionsClient(metaclass=VersionsClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1211,10 +1228,10 @@ class VersionsClient(metaclass=VersionsClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1265,10 +1282,10 @@ class VersionsClient(metaclass=VersionsClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -1318,14 +1335,9 @@ class VersionsClient(metaclass=VersionsClientMeta):
         return response
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-dialogflow",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("VersionsClient",)

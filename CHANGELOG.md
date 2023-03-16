@@ -4,6 +4,85 @@
 
 [1]: https://pypi.org/project/dialogflow/#history
 
+## [2.20.0](https://github.com/googleapis/python-dialogflow/compare/v2.19.1...v2.20.0) (2023-02-28)
+
+
+### Features
+
+* Added support for AssistQueryParameters and SynthesizeSpeechConfig ([03199c4](https://github.com/googleapis/python-dialogflow/commit/03199c43fd509bd7bd2693ce6648e9defbea3cf2))
+* Enable "rest" transport in Python for services supporting numeric enums ([03199c4](https://github.com/googleapis/python-dialogflow/commit/03199c43fd509bd7bd2693ce6648e9defbea3cf2))
+
+
+### Documentation
+
+* Add more meaningful comments ([03199c4](https://github.com/googleapis/python-dialogflow/commit/03199c43fd509bd7bd2693ce6648e9defbea3cf2))
+
+## [2.19.1](https://github.com/googleapis/python-dialogflow/compare/v2.19.0...v2.19.1) (2023-01-20)
+
+
+### Bug Fixes
+
+* Add context manager return types ([c5272ff](https://github.com/googleapis/python-dialogflow/commit/c5272ffd954eb42e6ed78cb17300737c36d1e9b1))
+
+
+### Documentation
+
+* Add documentation for enums ([c5272ff](https://github.com/googleapis/python-dialogflow/commit/c5272ffd954eb42e6ed78cb17300737c36d1e9b1))
+
+## [2.19.0](https://github.com/googleapis/python-dialogflow/compare/v2.18.0...v2.19.0) (2023-01-14)
+
+
+### Features
+
+* **v2:** Added SuggestConversationSummary RPC ([#607](https://github.com/googleapis/python-dialogflow/issues/607)) ([e5aabc8](https://github.com/googleapis/python-dialogflow/commit/e5aabc8c2022b943b793c20d9f2280c9db24001c))
+
+## [2.18.0](https://github.com/googleapis/python-dialogflow/compare/v2.17.0...v2.18.0) (2023-01-10)
+
+
+### Features
+
+* Add support for python 3.11 ([#604](https://github.com/googleapis/python-dialogflow/issues/604)) ([08a6580](https://github.com/googleapis/python-dialogflow/commit/08a6580b7bb5ba7e9efab0ad5d2bc141bde45572))
+
+## [2.17.0](https://github.com/googleapis/python-dialogflow/compare/v2.16.1...v2.17.0) (2022-12-15)
+
+
+### Features
+
+* Add support for `google.cloud.dialogflow.__version__` ([234ab9b](https://github.com/googleapis/python-dialogflow/commit/234ab9be67c4d8b3853dc20f38ec505cfeabb8fe))
+* Add typing to proto.Message based class attributes ([234ab9b](https://github.com/googleapis/python-dialogflow/commit/234ab9be67c4d8b3853dc20f38ec505cfeabb8fe))
+* Added cx_current_page field to AutomatedAgentReply  ([234ab9b](https://github.com/googleapis/python-dialogflow/commit/234ab9be67c4d8b3853dc20f38ec505cfeabb8fe))
+* **v2:** Added obfuscated_external_user_id to Participant ([f8c3d35](https://github.com/googleapis/python-dialogflow/commit/f8c3d35eedcab6996b18ba08c0b4637699d5e0e3))
+* **v2:** Added StreamingAnalyzeContent API ([#590](https://github.com/googleapis/python-dialogflow/issues/590)) ([f8c3d35](https://github.com/googleapis/python-dialogflow/commit/f8c3d35eedcab6996b18ba08c0b4637699d5e0e3))
+* **v2beta1:** Add ability to set Cloud Speech model in SpeechToTextConfig ([#587](https://github.com/googleapis/python-dialogflow/issues/587)) ([1d258c2](https://github.com/googleapis/python-dialogflow/commit/1d258c2ea8e9993a382dfb318f3022739030ad04))
+* **v2:** Can directly set Cloud Speech model on the SpeechToTextConfig ([f8c3d35](https://github.com/googleapis/python-dialogflow/commit/f8c3d35eedcab6996b18ba08c0b4637699d5e0e3))
+
+
+### Bug Fixes
+
+* Add dict typing for client_options ([234ab9b](https://github.com/googleapis/python-dialogflow/commit/234ab9be67c4d8b3853dc20f38ec505cfeabb8fe))
+* **deps:** Require google-api-core &gt;=1.34.0, >=2.11.0 ([234ab9b](https://github.com/googleapis/python-dialogflow/commit/234ab9be67c4d8b3853dc20f38ec505cfeabb8fe))
+* Drop usage of pkg_resources ([234ab9b](https://github.com/googleapis/python-dialogflow/commit/234ab9be67c4d8b3853dc20f38ec505cfeabb8fe))
+* Fix timeout default values ([234ab9b](https://github.com/googleapis/python-dialogflow/commit/234ab9be67c4d8b3853dc20f38ec505cfeabb8fe))
+
+
+### Documentation
+
+* Clarified docs for Sentiment ([234ab9b](https://github.com/googleapis/python-dialogflow/commit/234ab9be67c4d8b3853dc20f38ec505cfeabb8fe))
+* **samples:** Snippetgen handling of repeated enum field ([234ab9b](https://github.com/googleapis/python-dialogflow/commit/234ab9be67c4d8b3853dc20f38ec505cfeabb8fe))
+* **samples:** Snippetgen should call await on the operation coroutine before calling result ([234ab9b](https://github.com/googleapis/python-dialogflow/commit/234ab9be67c4d8b3853dc20f38ec505cfeabb8fe))
+
+## [2.16.1](https://github.com/googleapis/python-dialogflow/compare/v2.16.0...v2.16.1) (2022-10-10)
+
+
+### Bug Fixes
+
+* **deps:** Allow protobuf 3.19.5 ([#585](https://github.com/googleapis/python-dialogflow/issues/585)) ([4030787](https://github.com/googleapis/python-dialogflow/commit/40307877bbc467e6475a5614d315de4e6d902683))
+
+
+### Documentation
+
+* **samples:** Add sample code for StreamingAnalyzeContent for live transcription. ([#575](https://github.com/googleapis/python-dialogflow/issues/575)) ([b6bbd62](https://github.com/googleapis/python-dialogflow/commit/b6bbd62a3d3293e3ae031b2fdd8940343da08e74))
+
 ## [2.16.0](https://github.com/googleapis/python-dialogflow/compare/v2.15.2...v2.16.0) (2022-10-03)
 
 

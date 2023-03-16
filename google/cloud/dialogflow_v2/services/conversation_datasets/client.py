@@ -16,18 +16,30 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
+from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+from google.cloud.dialogflow_v2 import gapic_version as package_version
 
 try:
     OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
@@ -36,18 +48,21 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.dialogflow_v2.services.conversation_datasets import pagers
-from google.cloud.dialogflow_v2.types import conversation_dataset
-from google.cloud.dialogflow_v2.types import (
-    conversation_dataset as gcd_conversation_dataset,
-)
 from google.cloud.location import locations_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
-from .transports.base import ConversationDatasetsTransport, DEFAULT_CLIENT_INFO
+
+from google.cloud.dialogflow_v2.services.conversation_datasets import pagers
+from google.cloud.dialogflow_v2.types import (
+    conversation_dataset as gcd_conversation_dataset,
+)
+from google.cloud.dialogflow_v2.types import conversation_dataset
+
+from .transports.base import DEFAULT_CLIENT_INFO, ConversationDatasetsTransport
 from .transports.grpc import ConversationDatasetsGrpcTransport
 from .transports.grpc_asyncio import ConversationDatasetsGrpcAsyncIOTransport
+from .transports.rest import ConversationDatasetsRestTransport
 
 
 class ConversationDatasetsClientMeta(type):
@@ -63,10 +78,11 @@ class ConversationDatasetsClientMeta(type):
     )  # type: Dict[str, Type[ConversationDatasetsTransport]]
     _transport_registry["grpc"] = ConversationDatasetsGrpcTransport
     _transport_registry["grpc_asyncio"] = ConversationDatasetsGrpcAsyncIOTransport
+    _transport_registry["rest"] = ConversationDatasetsRestTransport
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[ConversationDatasetsTransport]:
         """Returns an appropriate transport class.
 
@@ -289,7 +305,7 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -344,8 +360,8 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, ConversationDatasetsTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, ConversationDatasetsTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the conversation datasets client.
@@ -359,7 +375,7 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
             transport (Union[str, ConversationDatasetsTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -389,6 +405,7 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -441,14 +458,16 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
 
     def create_conversation_dataset(
         self,
-        request: Union[
-            gcd_conversation_dataset.CreateConversationDatasetRequest, dict
+        request: Optional[
+            Union[gcd_conversation_dataset.CreateConversationDatasetRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        conversation_dataset: gcd_conversation_dataset.ConversationDataset = None,
+        parent: Optional[str] = None,
+        conversation_dataset: Optional[
+            gcd_conversation_dataset.ConversationDataset
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
         r"""Creates a new conversation dataset.
@@ -591,11 +610,13 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
 
     def get_conversation_dataset(
         self,
-        request: Union[conversation_dataset.GetConversationDatasetRequest, dict] = None,
+        request: Optional[
+            Union[conversation_dataset.GetConversationDatasetRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> conversation_dataset.ConversationDataset:
         r"""Retrieves the specified conversation dataset.
@@ -698,13 +719,13 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
 
     def list_conversation_datasets(
         self,
-        request: Union[
-            conversation_dataset.ListConversationDatasetsRequest, dict
+        request: Optional[
+            Union[conversation_dataset.ListConversationDatasetsRequest, dict]
         ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListConversationDatasetsPager:
         r"""Returns the list of all conversation datasets in the
@@ -821,13 +842,13 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
 
     def delete_conversation_dataset(
         self,
-        request: Union[
-            conversation_dataset.DeleteConversationDatasetRequest, dict
+        request: Optional[
+            Union[conversation_dataset.DeleteConversationDatasetRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
         r"""Deletes the specified conversation dataset.
@@ -961,10 +982,12 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
 
     def import_conversation_data(
         self,
-        request: Union[conversation_dataset.ImportConversationDataRequest, dict] = None,
+        request: Optional[
+            Union[conversation_dataset.ImportConversationDataRequest, dict]
+        ] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
         r"""Import data into the specified conversation dataset. Note that
@@ -1029,8 +1052,9 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.dialogflow_v2.types.ImportConversationDataOperationResponse` Response used for [ConversationDatasets.ImportConversationData][google.cloud.dialogflow.v2.ConversationDatasets.ImportConversationData] long
-                   running operation.
+                The result type for the operation will be :class:`google.cloud.dialogflow_v2.types.ImportConversationDataOperationResponse` Response used for
+                   [ConversationDatasets.ImportConversationData][google.cloud.dialogflow.v2.ConversationDatasets.ImportConversationData]
+                   long running operation.
 
         """
         # Create or coerce a protobuf request object.
@@ -1070,7 +1094,7 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
         # Done; return the response.
         return response
 
-    def __enter__(self):
+    def __enter__(self) -> "ConversationDatasetsClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -1085,10 +1109,10 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1139,10 +1163,10 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1193,10 +1217,10 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1247,10 +1271,10 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1301,10 +1325,10 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -1354,14 +1378,9 @@ class ConversationDatasetsClient(metaclass=ConversationDatasetsClientMeta):
         return response
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-dialogflow",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("ConversationDatasetsClient",)

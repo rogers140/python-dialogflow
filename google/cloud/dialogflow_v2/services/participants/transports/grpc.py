@@ -13,22 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import warnings
 from typing import Callable, Dict, Optional, Sequence, Tuple, Union
+import warnings
 
-from google.api_core import grpc_helpers
-from google.api_core import gapic_v1
+from google.api_core import gapic_v1, grpc_helpers
 import google.auth  # type: ignore
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-
+from google.cloud.location import locations_pb2  # type: ignore
+from google.longrunning import operations_pb2
 import grpc  # type: ignore
 
 from google.cloud.dialogflow_v2.types import participant
 from google.cloud.dialogflow_v2.types import participant as gcd_participant
-from google.cloud.location import locations_pb2  # type: ignore
-from google.longrunning import operations_pb2
-from .base import ParticipantsTransport, DEFAULT_CLIENT_INFO
+
+from .base import DEFAULT_CLIENT_INFO, ParticipantsTransport
 
 
 class ParticipantsGrpcTransport(ParticipantsTransport):
@@ -51,14 +50,14 @@ class ParticipantsGrpcTransport(ParticipantsTransport):
         self,
         *,
         host: str = "dialogflow.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
-        scopes: Sequence[str] = None,
-        channel: grpc.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        channel: Optional[grpc.Channel] = None,
+        api_mtls_endpoint: Optional[str] = None,
+        client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
+        client_cert_source_for_mtls: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
         quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
@@ -185,8 +184,8 @@ class ParticipantsGrpcTransport(ParticipantsTransport):
     def create_channel(
         cls,
         host: str = "dialogflow.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
         **kwargs,
@@ -376,6 +375,50 @@ class ParticipantsGrpcTransport(ParticipantsTransport):
                 response_deserializer=gcd_participant.AnalyzeContentResponse.deserialize,
             )
         return self._stubs["analyze_content"]
+
+    @property
+    def streaming_analyze_content(
+        self,
+    ) -> Callable[
+        [participant.StreamingAnalyzeContentRequest],
+        participant.StreamingAnalyzeContentResponse,
+    ]:
+        r"""Return a callable for the streaming analyze content method over gRPC.
+
+        Adds a text (chat, for example), or audio (phone recording, for
+        example) message from a participant into the conversation. Note:
+        This method is only available through the gRPC API (not REST).
+
+        The top-level message sent to the client by the server is
+        ``StreamingAnalyzeContentResponse``. Multiple response messages
+        can be returned in order. The first one or more messages contain
+        the ``recognition_result`` field. Each result represents a more
+        complete transcript of what the user said. The next message
+        contains the ``reply_text`` field and potentially the
+        ``reply_audio`` field. The message can also contain the
+        ``automated_agent_reply`` field.
+
+        Note: Always use agent versions for production traffic sent to
+        virtual agents. See `Versions and
+        environments <https://cloud.google.com/dialogflow/es/docs/agents-versions>`__.
+
+        Returns:
+            Callable[[~.StreamingAnalyzeContentRequest],
+                    ~.StreamingAnalyzeContentResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "streaming_analyze_content" not in self._stubs:
+            self._stubs["streaming_analyze_content"] = self.grpc_channel.stream_stream(
+                "/google.cloud.dialogflow.v2.Participants/StreamingAnalyzeContent",
+                request_serializer=participant.StreamingAnalyzeContentRequest.serialize,
+                response_deserializer=participant.StreamingAnalyzeContentResponse.deserialize,
+            )
+        return self._stubs["streaming_analyze_content"]
 
     @property
     def suggest_articles(

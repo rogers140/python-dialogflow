@@ -16,34 +16,51 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Iterable,
+    Iterator,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
+from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.auth.transport import mtls  # type: ignore
 from google.auth.transport.grpc import SslCredentials  # type: ignore
-from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+from google.cloud.dialogflow_v2 import gapic_version as package_version
 
 try:
     OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
+from google.cloud.location import locations_pb2  # type: ignore
+from google.longrunning import operations_pb2
+from google.protobuf import field_mask_pb2  # type: ignore
+
 from google.cloud.dialogflow_v2.services.participants import pagers
 from google.cloud.dialogflow_v2.types import participant
 from google.cloud.dialogflow_v2.types import participant as gcd_participant
 from google.cloud.dialogflow_v2.types import session
-from google.cloud.location import locations_pb2  # type: ignore
-from google.longrunning import operations_pb2
-from google.protobuf import field_mask_pb2  # type: ignore
-from .transports.base import ParticipantsTransport, DEFAULT_CLIENT_INFO
+
+from .transports.base import DEFAULT_CLIENT_INFO, ParticipantsTransport
 from .transports.grpc import ParticipantsGrpcTransport
 from .transports.grpc_asyncio import ParticipantsGrpcAsyncIOTransport
+from .transports.rest import ParticipantsRestTransport
 
 
 class ParticipantsClientMeta(type):
@@ -57,10 +74,11 @@ class ParticipantsClientMeta(type):
     _transport_registry = OrderedDict()  # type: Dict[str, Type[ParticipantsTransport]]
     _transport_registry["grpc"] = ParticipantsGrpcTransport
     _transport_registry["grpc_asyncio"] = ParticipantsGrpcAsyncIOTransport
+    _transport_registry["rest"] = ParticipantsRestTransport
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[ParticipantsTransport]:
         """Returns an appropriate transport class.
 
@@ -386,7 +404,7 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -441,8 +459,8 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, ParticipantsTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, ParticipantsTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the participants client.
@@ -456,7 +474,7 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
             transport (Union[str, ParticipantsTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -486,6 +504,7 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -538,12 +557,12 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def create_participant(
         self,
-        request: Union[gcd_participant.CreateParticipantRequest, dict] = None,
+        request: Optional[Union[gcd_participant.CreateParticipantRequest, dict]] = None,
         *,
-        parent: str = None,
-        participant: gcd_participant.Participant = None,
+        parent: Optional[str] = None,
+        participant: Optional[gcd_participant.Participant] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gcd_participant.Participant:
         r"""Creates a new participant in a conversation.
@@ -649,11 +668,11 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def get_participant(
         self,
-        request: Union[participant.GetParticipantRequest, dict] = None,
+        request: Optional[Union[participant.GetParticipantRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> participant.Participant:
         r"""Retrieves a conversation participant.
@@ -751,11 +770,11 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def list_participants(
         self,
-        request: Union[participant.ListParticipantsRequest, dict] = None,
+        request: Optional[Union[participant.ListParticipantsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListParticipantsPager:
         r"""Returns the list of all participants in the specified
@@ -809,7 +828,7 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
         Returns:
             google.cloud.dialogflow_v2.services.participants.pagers.ListParticipantsPager:
                 The response message for
-                [Participants.ListParticipants][google.cloud.dialogflow.v2.Participants.ListParticipants].
+                   [Participants.ListParticipants][google.cloud.dialogflow.v2.Participants.ListParticipants].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -868,12 +887,12 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def update_participant(
         self,
-        request: Union[gcd_participant.UpdateParticipantRequest, dict] = None,
+        request: Optional[Union[gcd_participant.UpdateParticipantRequest, dict]] = None,
         *,
-        participant: gcd_participant.Participant = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        participant: Optional[gcd_participant.Participant] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gcd_participant.Participant:
         r"""Updates the specified participant.
@@ -979,13 +998,13 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def analyze_content(
         self,
-        request: Union[gcd_participant.AnalyzeContentRequest, dict] = None,
+        request: Optional[Union[gcd_participant.AnalyzeContentRequest, dict]] = None,
         *,
-        participant: str = None,
-        text_input: session.TextInput = None,
-        event_input: session.EventInput = None,
+        participant: Optional[str] = None,
+        text_input: Optional[session.TextInput] = None,
+        event_input: Optional[session.EventInput] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gcd_participant.AnalyzeContentResponse:
         r"""Adds a text (chat, for example), or audio (phone recording, for
@@ -1059,7 +1078,7 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
         Returns:
             google.cloud.dialogflow_v2.types.AnalyzeContentResponse:
                 The response message for
-                [Participants.AnalyzeContent][google.cloud.dialogflow.v2.Participants.AnalyzeContent].
+                   [Participants.AnalyzeContent][google.cloud.dialogflow.v2.Participants.AnalyzeContent].
 
         """
         # Create or coerce a protobuf request object.
@@ -1110,13 +1129,171 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
         # Done; return the response.
         return response
 
+    def streaming_analyze_content(
+        self,
+        requests: Optional[Iterator[participant.StreamingAnalyzeContentRequest]] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> Iterable[participant.StreamingAnalyzeContentResponse]:
+        r"""Adds a text (chat, for example), or audio (phone recording, for
+        example) message from a participant into the conversation. Note:
+        This method is only available through the gRPC API (not REST).
+
+        The top-level message sent to the client by the server is
+        ``StreamingAnalyzeContentResponse``. Multiple response messages
+        can be returned in order. The first one or more messages contain
+        the ``recognition_result`` field. Each result represents a more
+        complete transcript of what the user said. The next message
+        contains the ``reply_text`` field and potentially the
+        ``reply_audio`` field. The message can also contain the
+        ``automated_agent_reply`` field.
+
+        Note: Always use agent versions for production traffic sent to
+        virtual agents. See `Versions and
+        environments <https://cloud.google.com/dialogflow/es/docs/agents-versions>`__.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import dialogflow_v2
+
+            def sample_streaming_analyze_content():
+                # Create a client
+                client = dialogflow_v2.ParticipantsClient()
+
+                # Initialize request argument(s)
+                request = dialogflow_v2.StreamingAnalyzeContentRequest(
+                    input_audio=b'input_audio_blob',
+                    participant="participant_value",
+                )
+
+                # This method expects an iterator which contains
+                # 'dialogflow_v2.StreamingAnalyzeContentRequest' objects
+                # Here we create a generator that yields a single `request` for
+                # demonstrative purposes.
+                requests = [request]
+
+                def request_generator():
+                    for request in requests:
+                        yield request
+
+                # Make the request
+                stream = client.streaming_analyze_content(requests=request_generator())
+
+                # Handle the response
+                for response in stream:
+                    print(response)
+
+        Args:
+            requests (Iterator[google.cloud.dialogflow_v2.types.StreamingAnalyzeContentRequest]):
+                The request object iterator. The top-level message sent by the
+                client to the
+                [Participants.StreamingAnalyzeContent][google.cloud.dialogflow.v2.Participants.StreamingAnalyzeContent]
+                method.
+
+                Multiple request messages should be sent in order:
+
+                1.  The first message must contain
+                [participant][google.cloud.dialogflow.v2.StreamingAnalyzeContentRequest.participant],
+                [config][google.cloud.dialogflow.v2.StreamingAnalyzeContentRequest.config]
+                and optionally
+                [query_params][google.cloud.dialogflow.v2.StreamingAnalyzeContentRequest.query_params].
+                If you want to receive an audio response, it should also
+                contain
+                [reply_audio_config][google.cloud.dialogflow.v2.StreamingAnalyzeContentRequest.reply_audio_config].
+                The message must not contain
+                [input][google.cloud.dialogflow.v2.StreamingAnalyzeContentRequest.input].
+                2.  If
+                [config][google.cloud.dialogflow.v2.StreamingAnalyzeContentRequest.config]
+                in the first message
+                    was set to
+                [audio_config][google.cloud.dialogflow.v2.StreamingAnalyzeContentRequest.audio_config],
+                all subsequent messages must contain
+                [input_audio][google.cloud.dialogflow.v2.StreamingAnalyzeContentRequest.input_audio]
+                to continue with Speech recognition. However, note that:
+                    * Dialogflow will bill you for the audio so far.
+                    * Dialogflow discards all Speech recognition results
+                in favor of the       text input.
+
+                 3. If
+                [StreamingAnalyzeContentRequest.config][google.cloud.dialogflow.v2.StreamingAnalyzeContentRequest.config]
+                in the first message was set
+                   to
+                [StreamingAnalyzeContentRequest.text_config][google.cloud.dialogflow.v2.StreamingAnalyzeContentRequest.text_config],
+                then the second message must contain only
+                [input_text][google.cloud.dialogflow.v2.StreamingAnalyzeContentRequest.input_text].
+                Moreover, you must not send more than two messages.
+                 After you sent all input, you must half-close or abort
+                the request stream.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            Iterable[google.cloud.dialogflow_v2.types.StreamingAnalyzeContentResponse]:
+                The top-level message returned from the
+                StreamingAnalyzeContent method.
+
+                   Multiple response messages can be returned in order:
+
+                   1. If the input was set to streaming audio, the first
+                      one or more messages contain recognition_result.
+                      Each recognition_result represents a more complete
+                      transcript of what the user said. The last
+                      recognition_result has is_final set to true.
+                   2. In virtual agent stage: if
+                      enable_partial_automated_agent_reply is true, the
+                      following N (currently 1 <= N <= 4) messages
+                      contain automated_agent_reply and optionally
+                      reply_audio returned by the virtual agent. The
+                      first (N-1) automated_agent_replys will have
+                      automated_agent_reply_type set to PARTIAL. The
+                      last automated_agent_reply has
+                      automated_agent_reply_type set to FINAL. If
+                      enable_partial_automated_agent_reply is not
+                      enabled, response stream only contains the final
+                      reply.
+
+                      In human assist stage: the following N (N >= 1)
+                      messages contain human_agent_suggestion_results,
+                      end_user_suggestion_results or message.
+
+        """
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.streaming_analyze_content
+        ]
+
+        # Send the request.
+        response = rpc(
+            requests,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
     def suggest_articles(
         self,
-        request: Union[participant.SuggestArticlesRequest, dict] = None,
+        request: Optional[Union[participant.SuggestArticlesRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> participant.SuggestArticlesResponse:
         r"""Gets suggested articles for a participant based on
@@ -1169,7 +1346,7 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
         Returns:
             google.cloud.dialogflow_v2.types.SuggestArticlesResponse:
                 The response message for
-                [Participants.SuggestArticles][google.cloud.dialogflow.v2.Participants.SuggestArticles].
+                   [Participants.SuggestArticles][google.cloud.dialogflow.v2.Participants.SuggestArticles].
 
         """
         # Create or coerce a protobuf request object.
@@ -1216,11 +1393,11 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def suggest_faq_answers(
         self,
-        request: Union[participant.SuggestFaqAnswersRequest, dict] = None,
+        request: Optional[Union[participant.SuggestFaqAnswersRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> participant.SuggestFaqAnswersResponse:
         r"""Gets suggested faq answers for a participant based on
@@ -1273,7 +1450,7 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
         Returns:
             google.cloud.dialogflow_v2.types.SuggestFaqAnswersResponse:
                 The request message for
-                [Participants.SuggestFaqAnswers][google.cloud.dialogflow.v2.Participants.SuggestFaqAnswers].
+                   [Participants.SuggestFaqAnswers][google.cloud.dialogflow.v2.Participants.SuggestFaqAnswers].
 
         """
         # Create or coerce a protobuf request object.
@@ -1320,11 +1497,11 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def suggest_smart_replies(
         self,
-        request: Union[participant.SuggestSmartRepliesRequest, dict] = None,
+        request: Optional[Union[participant.SuggestSmartRepliesRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> participant.SuggestSmartRepliesResponse:
         r"""Gets smart replies for a participant based on
@@ -1377,7 +1554,7 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
         Returns:
             google.cloud.dialogflow_v2.types.SuggestSmartRepliesResponse:
                 The response message for
-                [Participants.SuggestSmartReplies][google.cloud.dialogflow.v2.Participants.SuggestSmartReplies].
+                   [Participants.SuggestSmartReplies][google.cloud.dialogflow.v2.Participants.SuggestSmartReplies].
 
         """
         # Create or coerce a protobuf request object.
@@ -1422,7 +1599,7 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
         # Done; return the response.
         return response
 
-    def __enter__(self):
+    def __enter__(self) -> "ParticipantsClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -1437,10 +1614,10 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1491,10 +1668,10 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1545,10 +1722,10 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1599,10 +1776,10 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1653,10 +1830,10 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -1706,14 +1883,9 @@ class ParticipantsClient(metaclass=ParticipantsClientMeta):
         return response
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-dialogflow",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("ParticipantsClient",)

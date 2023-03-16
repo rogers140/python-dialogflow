@@ -17,40 +17,45 @@ from collections import OrderedDict
 import functools
 import re
 from typing import (
+    AsyncIterable,
+    AsyncIterator,
+    Awaitable,
     Dict,
     Mapping,
+    MutableMapping,
+    MutableSequence,
     Optional,
-    AsyncIterable,
-    Awaitable,
-    AsyncIterator,
     Sequence,
     Tuple,
     Type,
     Union,
 )
-import pkg_resources
 
-from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
+from google.api_core.client_options import ClientOptions
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
+
+from google.cloud.dialogflow_v2 import gapic_version as package_version
 
 try:
     OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
-from google.cloud.dialogflow_v2.types import audio_config
-from google.cloud.dialogflow_v2.types import session
-from google.cloud.dialogflow_v2.types import session as gcd_session
 from google.cloud.location import locations_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.rpc import status_pb2  # type: ignore
-from .transports.base import SessionsTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc_asyncio import SessionsGrpcAsyncIOTransport
+
+from google.cloud.dialogflow_v2.types import audio_config
+from google.cloud.dialogflow_v2.types import session
+from google.cloud.dialogflow_v2.types import session as gcd_session
+
 from .client import SessionsClient
+from .transports.base import DEFAULT_CLIENT_INFO, SessionsTransport
+from .transports.grpc_asyncio import SessionsGrpcAsyncIOTransport
 
 
 class SessionsAsyncClient:
@@ -141,7 +146,7 @@ class SessionsAsyncClient:
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -177,9 +182,9 @@ class SessionsAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, SessionsTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the sessions client.
@@ -223,12 +228,12 @@ class SessionsAsyncClient:
 
     async def detect_intent(
         self,
-        request: Union[gcd_session.DetectIntentRequest, dict] = None,
+        request: Optional[Union[gcd_session.DetectIntentRequest, dict]] = None,
         *,
-        session: str = None,
-        query_input: gcd_session.QueryInput = None,
+        session: Optional[str] = None,
+        query_input: Optional[gcd_session.QueryInput] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gcd_session.DetectIntentResponse:
         r"""Processes a natural language query and returns structured,
@@ -274,7 +279,7 @@ class SessionsAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.dialogflow_v2.types.DetectIntentRequest, dict]):
+            request (Optional[Union[google.cloud.dialogflow_v2.types.DetectIntentRequest, dict]]):
                 The request object. The request to detect user's intent.
             session (:class:`str`):
                 Required. The name of the session this query is sent to.
@@ -384,10 +389,10 @@ class SessionsAsyncClient:
 
     def streaming_detect_intent(
         self,
-        requests: AsyncIterator[session.StreamingDetectIntentRequest] = None,
+        requests: Optional[AsyncIterator[session.StreamingDetectIntentRequest]] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> Awaitable[AsyncIterable[session.StreamingDetectIntentResponse]]:
         r"""Processes a natural language query in audio format in a
@@ -450,6 +455,7 @@ class SessionsAsyncClient:
                 client to the
                 [Sessions.StreamingDetectIntent][google.cloud.dialogflow.v2.Sessions.StreamingDetectIntent]
                 method.
+
                 Multiple request messages should be sent in order:
 
                 1.  The first message must contain
@@ -457,7 +463,7 @@ class SessionsAsyncClient:
                 [query_input][google.cloud.dialogflow.v2.StreamingDetectIntentRequest.query_input]
                 plus optionally
                 [query_params][google.cloud.dialogflow.v2.StreamingDetectIntentRequest.query_params].
-                If the client     wants to receive an audio response, it
+                If the client wants to receive an audio response, it
                 should also contain
                 [output_audio_config][google.cloud.dialogflow.v2.StreamingDetectIntentRequest.output_audio_config].
                 The message must not contain
@@ -466,12 +472,12 @@ class SessionsAsyncClient:
                 [query_input][google.cloud.dialogflow.v2.StreamingDetectIntentRequest.query_input]
                 was set to
                 [query_input.audio_config][google.cloud.dialogflow.v2.InputAudioConfig],
-                all subsequent     messages must contain
+                all subsequent messages must contain
                 [input_audio][google.cloud.dialogflow.v2.StreamingDetectIntentRequest.input_audio]
-                to continue with     Speech recognition.
-                    If you decide to rather detect an intent from text
-                input after you     already started Speech recognition,
-                please send a message with
+                to continue with Speech recognition. If you decide to
+                rather detect an     intent from text input after you
+                already started Speech recognition,     please send a
+                message with
                 [query_input.text][google.cloud.dialogflow.v2.QueryInput.text].
                     However, note that:
 
@@ -528,10 +534,10 @@ class SessionsAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -582,10 +588,10 @@ class SessionsAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -636,10 +642,10 @@ class SessionsAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -690,10 +696,10 @@ class SessionsAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -744,10 +750,10 @@ class SessionsAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -803,14 +809,9 @@ class SessionsAsyncClient:
         await self.transport.close()
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-dialogflow",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("SessionsAsyncClient",)
